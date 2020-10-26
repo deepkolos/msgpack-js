@@ -418,12 +418,12 @@ export function TypedMap<V>(keyT: Type<number|string>, valueT: Type<V>): Collect
 	};
 }
 
-export function TypedObj<T>(objT: Obj<Type<any>>): Collection<T> {
+export function TypedObj(objT: Obj<Type<any>>): Collection<Type<Obj<any>>> {
 	return {
 		encHeader: putMapHeader,
 		decHeader: getMapHeader,
 
-		enc(buf: WriteBuffer, v: T): void {
+		enc(buf: WriteBuffer, v: Type<Obj<any>>): void {
 			const props = Object.keys(v);
 			putMapHeader(buf, props.length);
 			props.forEach(p => {
@@ -432,13 +432,13 @@ export function TypedObj<T>(objT: Obj<Type<any>>): Collection<T> {
 			});
 		},
 
-		dec(buf: ReadBuffer): T {
+		dec(buf: ReadBuffer): Type<Obj<any>> {
 			const res = {};
 			for(let n = getMapHeader(buf); n > 0; --n) {
 				const k = Str.dec(buf);
 				res[k] = objT[k].dec(buf);
 			}
-			return res as T;
+			return res as Type<Obj<any>>;
 		},
 	};
 }
